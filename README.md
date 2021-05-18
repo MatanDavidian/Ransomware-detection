@@ -1,5 +1,5 @@
 # installation
-* install fast text library:
+* install fast text library and add it to project directory:
 https://medium.com/@oleg.tarasov/building-fasttext-python-wrapper-from-source-under-windows-68e693a68cbb
   
 * download  fasttext model:
@@ -11,7 +11,7 @@ https://medium.com/@oleg.tarasov/building-fasttext-python-wrapper-from-source-un
   * change path of: detect_malware.py to the right path.
 # run
 * run program from Scan.bat file **as admin** .
-#description
+# description
 the program detect ransomware viruses
 according the syscalls that performed in the computer.  
 the program record all syscalls that perform in the computer for 50(s),
