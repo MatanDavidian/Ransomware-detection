@@ -17,7 +17,7 @@ details = ["FileAttributes:","EndOfFile:","NumberOfLinks:","DeletePending:","Des
      "0:00","1:00","2:00","FileInformationClass:"]  # 54
 
 c = ["Process Name", "Operation", "Duration", "Result", "Detail"] + details + ["malicious"]
-csv_input = pandas.read_csv("csv_files/end_100k_no_SD.csv", engine='python', nrows=2000)
+csv_input = pandas.read_csv("csv_files/end_100k_no_SD.csv", engine='python')
 df = pandas.DataFrame(csv_input, columns=c)
 df = separate_detail_column(df, details, "build")
 df, numeric_c = norm_data(df)
@@ -75,7 +75,7 @@ for WINDOW in [6]:
         print(f"avg: acc:{total_res[0]} train time:{total_res[1]} test time:{total_res[2]}\n")
         if total_res[0] > best_model_acc:
             best_model_acc = total_res[0]
-            best_model_name = title_str
+            best_model_name = title_str + " win size: " + str(WINDOW)
             best_model = model
 
 print(f"best model: {best_model_name}")
