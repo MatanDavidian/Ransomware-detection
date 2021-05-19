@@ -1,4 +1,4 @@
-start_path = r"C:\Users\SCE\PycharmProjects\final_p"
+start_path = r"C:\final_project\keras2"
 WINDOW = 18  # fit to model size.
 SKIP = 18
 # how much syscalls to collect

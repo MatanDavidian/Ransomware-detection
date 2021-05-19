@@ -8,7 +8,7 @@ https://medium.com/@oleg.tarasov/building-fasttext-python-wrapper-from-source-un
 * change start_path in setting.py to project path.
 * change Scan.bat
   * change the name of virtual env.
-  * change path of: detect_malware.py to the right path.
+  * change path of: detect_malware.py, Start-procman.bat to the right path.
 # run
 * run program from Scan.bat file **as admin** .
 # description
