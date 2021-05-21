@@ -20,6 +20,7 @@ c = ["Process Name", "Operation", "Duration", "Result", "Detail"] + details + ["
 csv_input = pandas.read_csv("csv_files/end_100k_no_SD.csv", engine='python')
 df = pandas.DataFrame(csv_input, columns=c)
 df = separate_detail_column(df, details, "build")
+del df["Process Name"]
 df, numeric_c = norm_data(df)
 df = W2v(df, numeric_c)
 df = mean_padding(df, Pad)

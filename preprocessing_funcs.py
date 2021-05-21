@@ -2,8 +2,21 @@ import pandas
 import re
 import fasttext.util
 import numpy as np
+from tensorflow.keras.preprocessing import timeseries_dataset_from_array
 ft = fasttext.load_model('cc.en.300.bin')
-print("load fast text model end")
+print("end load fast text model")
+
+
+def determine_target_val(df):
+    for index, l in df.iterrows():
+        if l["Process Name"] == "drpbx.exe":
+            df.at[index, "malicious"] = '1'
+        elif l["Process Name"] == "":
+            print("no Process Name")
+            exit()
+        else:
+            df.at[index, "malicious"] = '0'
+    return df
 
 
 def separate_detail_column(df, details, option):
@@ -17,14 +30,6 @@ def separate_detail_column(df, details, option):
         op = (l["Operation"]).replace("Reg", "Registry")
         op = re.sub('([A-Z])', r' \1', op)[1:]
         df.at[index, "Operation"] = op
-        if option == "build":
-            if l["Process Name"] == "drpbx.exe":
-                df.at[index, "malicious"] = '1'
-            elif l["Process Name"] == "":
-                print("no Process Name")
-                exit()
-            else:
-                df.at[index, "malicious"] = '0'
         if pandas.notnull(l["Detail"]):
             rowDetail = l["Detail"]
             first_arg = rowDetail.find(':')
@@ -65,8 +70,6 @@ def separate_detail_column(df, details, option):
 
     # df.iloc[:, -1] = '0'
     del df["Detail"]
-    if option == "build":
-        del df["Process Name"]
     return df
 
 
@@ -144,19 +147,46 @@ def mean_padding(df, Pad):
     return df
 
 
+def zero_padding(df, win_size):
+    print("start zero_padding")
+    df = df.set_index(['Process Name', df.groupby('Process Name').cumcount()])
+    indexes = []
+    for name, group in df.groupby('Process Name'):
+        pad = win_size - (len(group) % win_size)
+        indexes.append(len(group) + pad)
+
+    names = []
+    for i in range(len(indexes)):
+        name = [df.index.levels[0][i]] * indexes[i]
+        names += name
+    indexes = [range(i) for i in indexes]
+    indexes = [list(i) for i in indexes]
+    # flatten
+    indexes = [item for sublist in indexes for item in sublist]
+
+    arr = [names, indexes]
+    mux = pandas.MultiIndex.from_arrays(arr, names=df.index.names)
+    df = df.reindex(mux, fill_value=[0] * 300).reset_index(level=1, drop=True).reset_index()
+    print("end zero_padding")
+    return df
+
+
+def sort_and_cut(df, max_sc):
+    df = df.groupby('Process Name').head(max_sc)
+    return df.sort_values(['Process Name'], kind='mergesort')
+
+
 def norm_data(df):
     numeric_c = []
     for c in df.columns:
         df[c] = df[c].replace(['nan', 'n/a'], 0, regex=True)
     for c in df.columns:
         if c == 'malicious':
-            print("continue")
             continue
         try:
             df[c] = pandas.to_numeric(df[c])
             # print(c)
             min_c = df[c].min()
-            # print(df[c].max() - min_c)
             df[c] = np.float32((df[c] - min_c) / (df[c].max() - min_c))
             numeric_c.append(c)
         except:
@@ -176,6 +206,7 @@ def ret_vec(value):
         meanVec = np.mean(vec300, axis=0)
         return meanVec
     return [0] * 300
+
 
 # https://towardsdatascience.com/fast-and-robust-sliding-window-vectorization-with-numpy-3ad950ed62f5
 def make_windows(df, WINDOW, SKIP, option):
@@ -217,3 +248,19 @@ def make_windows(df, WINDOW, SKIP, option):
         print(f"X.shape[0] = {X.shape[0]}")
         print("end make windows")
         return X
+
+
+def make_win2(df, WINDOW, SKIP):
+    print("start make win2")
+    y = df['malicious'].values.tolist()
+    y = np.asarray(y, dtype="float32")
+    X = df.drop('malicious', axis=1).values.tolist()
+    X = np.asarray(X, dtype="float32")
+    print("end to numpy")
+    dataset = timeseries_dataset_from_array(data=X, targets=y, sequence_length=WINDOW,
+                                                                   sampling_rate=1, sequence_stride=SKIP,
+                                                                   batch_size=12, shuffle=True)
+    print("end make win2")
+    return dataset
+
+
