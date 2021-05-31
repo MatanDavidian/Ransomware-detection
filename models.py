@@ -1,5 +1,6 @@
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Reshape, LSTM
+from tensorflow.keras import layers
 
 
 def models(shape):
@@ -7,10 +8,10 @@ def models(shape):
         print("*** Shape ***")
         print(shape[1], shape[2], shape[3])
         model = Sequential()
-        model.add(Conv2D(filters=64, kernel_size=3, activation="relu", input_shape=(shape[1], shape[2], shape[3])))
+        model.add(Conv2D(filters=128, kernel_size=3, activation="relu", input_shape=(shape[1], shape[2], shape[3])))
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
-        return model, "CNN2d filter 64"
+        return model, "CNN2d filter 128\n"
     def CNN2():
         model = Sequential()
         model.add(Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation="relu",
@@ -50,21 +51,30 @@ def models(shape):
         model.add(LSTM(new_win_size, activation='tanh', return_sequences=False))
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
-        return model, "CNN2d + RNN strides=(2, 2), filter 64"
+        return model, "CNN2d + RNN strides=(2, 2), filter \n"
     def CNN_RNN2():
         model = Sequential()
-        model.add(Conv2D(filters=64, kernel_size=3, activation="relu",
+        model.add(Conv2D(filters=128, kernel_size=3, activation="relu",
                          input_shape=(shape[1], shape[2], shape[3])))
-        model.add(Reshape((shape[1] - 2, (shape[2] - 2) * 64)))
+        model.add(Reshape((shape[1] - 2, (shape[2] - 2) * 128)))
         model.add(LSTM(shape[1] - 2, activation='tanh', return_sequences=False))
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
-        return model, "CNN2d + RNN, filter 64"
+        return model, "CNN2d + RNN, filters=128, kernel_size=3\n"
+    def CNN_RNN3():
+        model = Sequential()
+        model.add(Conv2D(filters=128, kernel_size=(1, 3), strides=(1, 2), activation="relu",
+                         input_shape=(shape[1], shape[2], shape[3])))
+        model.add(Reshape((shape[1], (shape[2] // 2) * 128)))
+        model.add(LSTM(shape[1], activation='tanh', return_sequences=False))
+        model.add(Flatten())
+        model.add(Dense(1, activation='sigmoid'))
+        return model, "CNN2d + RNN, filters=128, kernel_size=(1, 3), strides=(1, 2)\n"
     def RNN():
         model = Sequential()
         model.add(Reshape((shape[1], (shape[2]) * shape[3]), input_shape=(shape[1], shape[2], shape[3])))
         model.add(LSTM(shape[1], activation='tanh', return_sequences=False))
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
-        return model, "RNN, activation='tanh', return_sequences=False"
-    return [CNN1, CNN2, CNN3, CNN4, CNN_RNN1, CNN_RNN2, RNN]
+        return model, "RNN, activation='tanh', return_sequences=False\n"
+    return [CNN1, CNN_RNN3, CNN_RNN2, RNN]

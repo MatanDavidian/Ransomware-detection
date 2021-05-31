@@ -3,6 +3,8 @@ import re
 import fasttext.util
 import numpy as np
 from tensorflow.keras.preprocessing import timeseries_dataset_from_array
+import tensorflow as tf
+
 ft = fasttext.load_model('cc.en.300.bin')
 print("end load fast text model")
 
@@ -254,6 +256,8 @@ def make_win2(df, WINDOW, SKIP):
     print("start make win2")
     y = df['malicious'].values.tolist()
     y = np.asarray(y, dtype="float32")
+    y = tf.one_hot(y, 2)
+    print("y:", y)
     X = df.drop('malicious', axis=1).values.tolist()
     X = np.asarray(X, dtype="float32")
     print("end to numpy")
