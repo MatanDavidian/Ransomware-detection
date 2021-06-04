@@ -2,11 +2,10 @@ from sklearn.model_selection import train_test_split
 import time
 from preprocessing_funcs import *
 from models import *
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
 num_of_repeat_same_model = 1
-MaxSysCallsToRegProcess = 1500
-MaxSysCallsToVirProcess = 10000
-virus_part = {"from": 150000, "to": 200000, "rows": 50000}
+MaxSysCallsToProcess = 5000
+virus_part = {"from": 0, "to": 225000, "rows": 225000}
 numeric_c = []
 output_file_name = f"all_models_{num_of_repeat_same_model}_times.txt"
 # details
@@ -21,22 +20,12 @@ details = ["FileAttributes:","EndOfFile:","NumberOfLinks:","DeletePending:","Des
 
 c = ["Process Name", "Operation", "Duration", "Result", "Detail"] + details + ["malicious"]
 # benign processes
-REG_input = pandas.read_csv("csv_files/r1.csv", engine='python')
-df1 = pandas.DataFrame(REG_input, columns=c)
-df1 = sort_and_cut(df1, MaxSysCallsToRegProcess)
-
+RW_input = pandas.read_csv("csv_files/r1.csv", engine='python')
+df1 = pandas.DataFrame(RW_input, columns=c)
+df1 = sort_and_cut(df1, MaxSysCallsToProcess)
 # RW process
-if virus_part["rows"] != 0:
-    RW_input = pandas.read_csv("csv_files/v1.csv", engine='python', nrows=virus_part["to"]).tail(virus_part["rows"])
-else:
-    RW_input = pandas.read_csv("csv_files/v1.csv", engine='python')
-
-df2 = pandas.DataFrame(RW_input, columns=c)
-df2 = sort_and_cut(df2, MaxSysCallsToVirProcess)
-
-# print dfs len
-print("benign length: " + str(len(df1.index)))
-print("RW length: " + str(len(df2.index)))
+REG_input = pandas.read_csv("csv_files/15_viruses.csv", engine='python', nrows=virus_part["to"]).tail(virus_part["rows"])
+df2 = pandas.DataFrame(REG_input, columns=c)
 # concat
 df = pandas.concat([df1, df2], axis=0, join='inner').reset_index().drop(['index'], axis=1)
 print("end generate data")
@@ -50,14 +39,9 @@ SKIP = 18
 best_model_acc = 0
 best_model_name = ''
 best_model = 0
-
-virus_names1 = ['drpbx.exe']
-virus_names12 = ['216', '3d1', '420', '42a', '46d', '52f', '56c', '5b6', '7a0', '841', '860', '9ff']
-virus_names15 = ['216', '3d1', '420', '42a', '46d', '52f', '56c', '5b6', '7a0', '841', '860', '9ff', 'a60', 'a8a', 'cbe']
-
 for WINDOW in [18]:
     df2 = zero_padding(df, WINDOW)
-    df2 = determine_target_val(df2, virus_names1).drop(['Process Name'], axis=1)  # 0 to reg, 1 to malicious
+    df2 = determine_target_val(df2).drop(['Process Name'], axis=1)  # 0 to reg, 1 to malicious
 
     X, y = make_windows(df2, WINDOW, SKIP, "build")
 
@@ -115,6 +99,7 @@ for WINDOW in [18]:
             best_model_acc = total_res[0]
             best_model_name = title_str + " win size: " + str(WINDOW)
             best_model = model
+        break
 
 print(f"best model: {best_model_name}")
 op = int(input("for saving the best_model enter 1, else enter 0: "))

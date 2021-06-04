@@ -1,5 +1,5 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Reshape, LSTM
+from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Reshape, LSTM, Conv1D
 from tensorflow.keras import layers
 
 
@@ -77,4 +77,11 @@ def models(shape):
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
         return model, "RNN, activation='tanh', return_sequences=False\n"
-    return [CNN1, CNN_RNN3, CNN_RNN2, RNN]
+    def RNN2():
+        model = Sequential()
+        model.add(Reshape((shape[1], (shape[2]) * shape[3]), input_shape=(shape[1], shape[2], shape[3])))
+        model.add(LSTM(shape[1], activation='sigmoid', return_sequences=False))
+        model.add(Flatten())
+        model.add(Dense(1, activation='sigmoid'))
+        return model, "RNN, activation='sigmoid', return_sequences=False\n"
+    return [RNN, RNN2, CNN1, CNN_RNN3, CNN_RNN2]

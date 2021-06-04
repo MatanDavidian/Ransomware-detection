@@ -9,9 +9,9 @@ ft = fasttext.load_model('cc.en.300.bin')
 print("end load fast text model")
 
 
-def determine_target_val(df):
+def determine_target_val(df, viruses):
     for index, l in df.iterrows():
-        if l["Process Name"] == "drpbx.exe":
+        if l["Process Name"] in viruses:
             df.at[index, "malicious"] = '1'
         elif l["Process Name"] == "":
             print("no Process Name")
@@ -155,7 +155,10 @@ def zero_padding(df, win_size):
     indexes = []
     for name, group in df.groupby('Process Name'):
         pad = win_size - (len(group) % win_size)
+        if pad == win_size:
+            pad = 0
         indexes.append(len(group) + pad)
+        print(f"name: {name}, pad with: {pad}")
 
     names = []
     for i in range(len(indexes)):
