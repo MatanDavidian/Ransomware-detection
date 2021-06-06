@@ -1,5 +1,5 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Reshape, LSTM, Conv1D
+from keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, Reshape, LSTM, Conv1D, ConvLSTM2D
 from tensorflow.keras import layers
 
 
@@ -84,4 +84,13 @@ def models(shape):
         model.add(Flatten())
         model.add(Dense(1, activation='sigmoid'))
         return model, "RNN, activation='sigmoid', return_sequences=False\n"
-    return [RNN, RNN2, CNN1, CNN_RNN3, CNN_RNN2]
+
+    def convLSTM(NUM_IMAGES):
+        model = Sequential()
+        model.add(ConvLSTM2D(128, kernel_size=(3, 3), activation='sigmoid', padding='valid', return_sequences=False,
+                             input_shape=(NUM_IMAGES, shape[1], shape[2], shape[3])))
+        model.add(Flatten())
+        model.add(Dense(1, activation='sigmoid'))
+        return model, "convLSTM,filters=128,kernel=(3,3) activation='sigmoid', return_sequences=False\n"
+
+    return [convLSTM]  # [RNN, RNN2, CNN1, CNN_RNN3, CNN_RNN2]

@@ -4,8 +4,8 @@ from preprocessing_funcs import *
 from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-MaxSysCallsToRegProcess = 2000
-virus_part = {"from": 150000, "to": 200000, "rows": 50000}
+MaxSysCallsToRegProcess = 5000
+virus_part = {"from": 150000, "to": 236505, "rows": 86505}  # 236505 86505
 numeric_c = []
 # details
 details = ["FileAttributes:","EndOfFile:","NumberOfLinks:","DeletePending:","DesiredAccess:","Disposition:",
@@ -75,14 +75,7 @@ df = 0
 
 print("train_test_split end")
 
-fit_start_time = time.time()
-F_model = RandomForestClassifier().fit(X_train, y_train)
-fit_end_time = time.time()
-print("F_model fit end")
-evaluate_start_time = time.time()
-F_res = F_model.score(X_test, y_test)
-evaluate_end_time = time.time()
-print(f"The Random Forest result: {F_res} fit time:{fit_end_time-fit_start_time}, evaluate time:{evaluate_end_time-evaluate_start_time}")
+
 
 # SVM linear
 print("start svm")
@@ -107,3 +100,11 @@ print(f"The SVM poly func result: {S_res} fit time:{fit_end_time-fit_start_time}
 
 
 
+fit_start_time = time.time()
+F_model = RandomForestClassifier().fit(X_train, y_train)
+fit_end_time = time.time()
+print("F_model fit end")
+evaluate_start_time = time.time()
+F_res = F_model.score(X_test, y_test)
+evaluate_end_time = time.time()
+print(f"The Random Forest result: {F_res} fit time:{fit_end_time-fit_start_time}, evaluate time:{evaluate_end_time-evaluate_start_time}")
