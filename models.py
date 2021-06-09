@@ -93,4 +93,4 @@ def models(shape):
         model.add(Dense(1, activation='sigmoid'))
         return model, "convLSTM,filters=128,kernel=(3,3) activation='sigmoid', return_sequences=False\n"
 
-    return [convLSTM]  # [RNN, RNN2, CNN1, CNN_RNN3, CNN_RNN2]
+    return [CNN1]  # [RNN, RNN2, CNN1, CNN_RNN3, CNN_RNN2] convLSTM

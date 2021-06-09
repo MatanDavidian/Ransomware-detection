@@ -50,33 +50,36 @@ best_model_name = ''
 best_model = 0
 
 SKIP = 6
-for WINDOW in [6, 9]:
+for WINDOW in [9]:
     df2 = zero_padding(df, WINDOW)
     df2 = determine_target_val(df2, virus_names1).drop(['Process Name'], axis=1)  # 0 to reg, 1 to malicious
     print("dataframe length: " + str(len(df2.index)))
     X1, y1 = make_windows(df2, WINDOW, SKIP, "build")
-    for NUM_IMAGES in [3, 5, 7]:
+    for NUM_IMAGES in [3]:
         try:
             remove_num = X1.shape[0] % NUM_IMAGES
             if remove_num != 0:
+                print(f"1. before X shape: {X1.shape[1]}, {X1.shape[2]}, {X1.shape[3]}")
                 X = X1[:remove_num * (-1)]
                 y = y1[:remove_num * (-1)]
-                X = X.reshape(X.shape[0] // NUM_IMAGES, NUM_IMAGES, X.shape[1], X.shape[2], X.shape[3])
-                new_y = []
-                count = 0
-                indexes_to_del = []
-                for i in range(0, len(y), NUM_IMAGES):
-                    if y[i] == 0 and y[i + (NUM_IMAGES - 1)] == 0:
-                        new_y.append(0)
-                    elif y[i] == 1 and y[i + (NUM_IMAGES - 1)] == 1:
-                        new_y.append(1)
-                    else:
-                        indexes_to_del.append(count)
-                y = np.array(new_y)
-                X = np.delete(X, indexes_to_del, axis=0)
             else:
+                print(f"2. before X shape: {X1.shape[1]}, {X1.shape[2]}, {X1.shape[3]}")
+                X = X1
                 y = y1
-                X = X1.reshape(X1.shape[0] // NUM_IMAGES, NUM_IMAGES, X.shape[1], X.shape[2], X.shape[3])
+
+            X = X.reshape(X1.shape[0] // NUM_IMAGES, NUM_IMAGES, X1.shape[1], X1.shape[2], X1.shape[3])
+            new_y = []
+            count = 0
+            indexes_to_del = []
+            for i in range(0, len(y), NUM_IMAGES):
+                if y[i] == 0 and y[i + (NUM_IMAGES - 1)] == 0:
+                    new_y.append(0)
+                elif y[i] == 1 and y[i + (NUM_IMAGES - 1)] == 1:
+                    new_y.append(1)
+                else:
+                    indexes_to_del.append(count)
+            y = np.array(new_y)
+            X = np.delete(X, indexes_to_del, axis=0)
 
             print("--------X----------")
             print("X.shape: {}".format(X.shape))
