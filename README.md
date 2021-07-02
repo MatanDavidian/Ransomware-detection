@@ -16,4 +16,4 @@ https://medium.com/@oleg.tarasov/building-fasttext-python-wrapper-from-source-un
 the program detect ransomware viruses
 according the syscalls that performed in the computer.  
 the program record all syscalls that perform in the computer for 50(s),
-and check any process that perform more than 1.8k syscalls
+and check any process that perform more than 1.8k syscalls with deep learning models(CNN).
